@@ -404,7 +404,7 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here..." oninput="limitText(this, 180)">Write your message here...</div>
+          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here..." oninput="limitText(this, 260)">Write your message here...</div>
           
           <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
             <div id="placeholder" class="placeholder-box">+ Stamp</div>
@@ -723,12 +723,11 @@
       const card = document.getElementById('main-card');
       const editables = card.querySelectorAll('.editable');
       
-      const statesBackup = [];
+      const placeholdersHidden = [];
       editables.forEach(el => {
-        statesBackup.push({ el: el, text: el.innerText, isPlaceholder: el.classList.contains('placeholder-active') });
         if (el.classList.contains('placeholder-active')) {
-          el.style.display = 'none';
-          el.innerText = '';
+          el.style.visibility = 'hidden';
+          placeholdersHidden.push(el);
         }
       });
 
@@ -736,23 +735,17 @@
       const placeholderBox = document.getElementById('placeholder');
       let wasPlaceholderHidden = false;
       if (photoImg.style.display === 'none') {
-        placeholderBox.style.display = 'none';
+        placeholderBox.style.visibility = 'hidden';
         wasPlaceholderHidden = true;
       }
 
       html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
-        statesBackup.forEach(item => {
-          item.el.innerText = item.text;
-          item.el.style.display = '';
-          if (item.isPlaceholder) {
-            item.el.classList.add('placeholder-active');
-          } else {
-            item.el.classList.remove('placeholder-active');
-          }
+        placeholdersHidden.forEach(el => {
+          el.style.visibility = 'visible';
         });
 
         if (wasPlaceholderHidden) {
-          placeholderBox.style.display = 'flex';
+          placeholderBox.style.visibility = 'visible';
         }
 
         const link = document.createElement('a');
