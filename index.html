@@ -150,27 +150,28 @@
       border-radius: 16px; 
       padding: 14px; 
       display: grid; 
-      grid-template-columns: 1fr 110px;
-      grid-template-rows: 70px 1fr;
-      gap: 8px 12px;
+      grid-template-columns: 1fr 115px;
+      grid-template-rows: 65px 1fr;
+      gap: 6px 10px;
       box-sizing: border-box;
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
     }
 
-    /* SPAZIO TESTO A SINISTRA */
+    /* SPAZIO TESTO A SINISTRA (AMPIAMENTE POTENZIATO) */
     .card-review { 
       grid-column: 1 / 2;
       grid-row: 1 / 3;
-      font-size: 11px; 
-      line-height: 14px; 
+      font-size: 10.5px; 
+      line-height: 13.5px; 
       word-break: break-word; 
       color: #333333;
-      overflow: hidden;
+      overflow-y: auto;
       resize: none;
-      align-self: start;
+      align-self: stretch;
       height: 100%;
+      padding-right: 4px;
     }
 
     /* IMMAGINE IN ALTO A DESTRA */
@@ -186,34 +187,36 @@
     }
     
     .placeholder-box { 
-      width: 65px; 
-      height: 65px; 
+      width: 60px; 
+      height: 60px; 
       border: 2px dashed inherit; 
       border-radius: 8px; 
       display: flex; 
       align-items: center; 
       justify-content: center; 
       background-color: rgba(0,0,0,0.02); 
-      font-size: 10px; 
+      font-size: 9.5px; 
       font-weight: 700; 
     }
     
     .card-photo-box img { 
-      max-height: 65px; 
-      max-width: 65px;
+      max-height: 60px; 
+      max-width: 60px;
       width: auto;
       height: auto;
       display: block;
       object-fit: contain;
     }
 
-    /* INFORMAZIONI IN BASSO A DESTRA */
+    /* INFORMAZIONI IN BASSO A DESTRA (VANO AUTOMATICAMENTE A CAPO E NON INVADONO SINISTRA) */
     .card-info-bottom {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
+      align-items: flex-end;
+      text-align: right;
       gap: 2px;
       overflow: hidden;
     }
@@ -221,8 +224,25 @@
     .editable { outline: none; -webkit-tap-highlight-color: transparent; }
     .editable.placeholder-active { opacity: 0.5; }
 
-    .card-title { font-size: 12px; line-height: 15px; font-weight: 800; word-break: break-word; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-voto { font-size: 10px; line-height: 13px; font-weight: 800; color: #555555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-title { 
+      font-size: 11px; 
+      line-height: 14px; 
+      font-weight: 800; 
+      word-break: break-word; 
+      overflow-wrap: break-word;
+      color: #000000; 
+      width: 100%;
+    }
+    
+    .card-voto { 
+      font-size: 9.5px; 
+      line-height: 12px; 
+      font-weight: 800; 
+      color: #555555; 
+      word-break: break-word; 
+      overflow-wrap: break-word;
+      width: 100%;
+    }
 
     /* TEMI CARTA */
     .card.light-card { background-color: #ffffff; border: 3px solid #000000; }
@@ -404,7 +424,7 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here..." oninput="limitText(this, 260)">Write your message here...</div>
+          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here... (lots of space available)" oninput="limitText(this, 400)">Write your message here... (lots of space available)</div>
           
           <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
             <div id="placeholder" class="placeholder-box">+ Stamp</div>
@@ -412,8 +432,8 @@
           </div>
 
           <div class="card-info-bottom">
-            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info..." oninput="limitText(this, 25)">Name / Info...</div>
-            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details..." oninput="limitText(this, 30)">Date / Details...</div>
+            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Title..." oninput="limitText(this, 50)">Name / Title...</div>
+            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / From..." oninput="limitText(this, 50)">Date / From...</div>
           </div>
         </div>
 
@@ -721,32 +741,24 @@
 
     function downloadCard() {
       const card = document.getElementById('main-card');
-      const editables = card.querySelectorAll('.editable');
       
-      const placeholdersHidden = [];
-      editables.forEach(el => {
+      card.querySelectorAll('.editable').forEach(el => {
         if (el.classList.contains('placeholder-active')) {
           el.style.visibility = 'hidden';
-          placeholdersHidden.push(el);
         }
       });
 
-      const photoImg = document.getElementById('card-photo-img');
+      const origPhotoImg = document.getElementById('card-photo-img');
       const placeholderBox = document.getElementById('placeholder');
-      let wasPlaceholderHidden = false;
-      if (photoImg.style.display === 'none') {
+      if (origPhotoImg.style.display === 'none') {
         placeholderBox.style.visibility = 'hidden';
-        wasPlaceholderHidden = true;
       }
 
       html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
-        placeholdersHidden.forEach(el => {
+        card.querySelectorAll('.editable').forEach(el => {
           el.style.visibility = 'visible';
         });
-
-        if (wasPlaceholderHidden) {
-          placeholderBox.style.visibility = 'visible';
-        }
+        placeholderBox.style.visibility = 'visible';
 
         const link = document.createElement('a');
         link.download = 'post-card.png';
