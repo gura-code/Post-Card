@@ -207,39 +207,22 @@
       object-fit: contain;
     }
 
-    /* INFORMAZIONI IN BASSO A DESTRA (MODIFICATO: PARTONO DALL'ALTO E VANNO A CAPO) */
+    /* INFORMAZIONI IN BASSO A DESTRA */
     .card-info-bottom {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-end;
-      text-align: right;
-      gap: 3px;
+      justify-content: flex-end;
+      gap: 2px;
       overflow: hidden;
     }
 
     .editable { outline: none; -webkit-tap-highlight-color: transparent; }
     .editable.placeholder-active { opacity: 0.5; }
 
-    .card-title { 
-      font-size: 12px; 
-      line-height: 15px; 
-      font-weight: 800; 
-      word-break: break-word; 
-      color: #000000; 
-      width: 100%;
-    }
-    
-    .card-voto { 
-      font-size: 10px; 
-      line-height: 13px; 
-      font-weight: 800; 
-      color: #555555; 
-      word-break: break-word; 
-      width: 100%;
-    }
+    .card-title { font-size: 12px; line-height: 15px; font-weight: 800; word-break: break-word; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-voto { font-size: 10px; line-height: 13px; font-weight: 800; color: #555555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* TEMI CARTA */
     .card.light-card { background-color: #ffffff; border: 3px solid #000000; }
@@ -429,8 +412,8 @@
           </div>
 
           <div class="card-info-bottom">
-            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info..." oninput="limitText(this, 35)">Name / Info...</div>
-            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details..." oninput="limitText(this, 40)">Date / Details...</div>
+            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info..." oninput="limitText(this, 25)">Name / Info...</div>
+            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details..." oninput="limitText(this, 30)">Date / Details...</div>
           </div>
         </div>
 
@@ -737,31 +720,33 @@
     }
 
     function downloadCard() {
-      const originalCard = document.getElementById('main-card');
-      const clone = originalCard.cloneNode(true);
+      const card = document.getElementById('main-card');
+      const editables = card.querySelectorAll('.editable');
       
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      clone.style.top = '-9999px';
-      document.body.appendChild(clone);
-
-      clone.querySelectorAll('.editable').forEach((el, index) => {
-        const origEl = originalCard.querySelectorAll('.editable')[index];
-        if (origEl.classList.contains('placeholder-active')) {
+      const placeholdersHidden = [];
+      editables.forEach(el => {
+        if (el.classList.contains('placeholder-active')) {
           el.style.visibility = 'hidden';
+          placeholdersHidden.push(el);
         }
       });
 
-      const clonePhotoImg = clone.querySelector('#card-photo-img');
-      const clonePlaceholderBox = clone.querySelector('#placeholder');
-      const origPhotoImg = document.getElementById('card-photo-img');
-      
-      if (origPhotoImg.style.display === 'none') {
-        clonePlaceholderBox.style.visibility = 'hidden';
+      const photoImg = document.getElementById('card-photo-img');
+      const placeholderBox = document.getElementById('placeholder');
+      let wasPlaceholderHidden = false;
+      if (photoImg.style.display === 'none') {
+        placeholderBox.style.visibility = 'hidden';
+        wasPlaceholderHidden = true;
       }
 
-      html2canvas(clone, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
-        document.body.removeChild(clone);
+      html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
+        placeholdersHidden.forEach(el => {
+          el.style.visibility = 'visible';
+        });
+
+        if (wasPlaceholderHidden) {
+          placeholderBox.style.visibility = 'visible';
+        }
 
         const link = document.createElement('a');
         link.download = 'post-card.png';
