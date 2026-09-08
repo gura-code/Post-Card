@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <title>Post-Card</title>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Dancing+Script:wght@600;700&family=Montserrat:wght@500;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <style>
@@ -197,7 +197,6 @@
       background-color: rgba(0,0,0,0.02); 
       font-size: 9.5px; 
       font-weight: 700; 
-      /* Eredita il colore dinamico degli altri testi della card */
       color: inherit; 
     }
     
@@ -398,6 +397,29 @@
     .btn-action.cancel { color: #8e8e93; }
     .btn-action.done { color: #ffffff; }
 
+    /* MODALE SELEZIONE FONT */
+    .font-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .font-option {
+      background: #2c2c2e;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .font-option:hover { background: #3a3a3c; }
+    .font-option.active-font { border: 2px solid #0a84ff; }
+
     /* DARK/LIGHT MODE */
     @media (prefers-color-scheme: dark) {
       html, body, .phone-wrapper, #splash, .main-ui { background-color: #000000 !important; color: #ffffff !important; }
@@ -468,6 +490,10 @@
             <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"></path></svg>
             Text Color
           </button>
+          <button class="menu-btn" onclick="openFontModal()" style="grid-column: span 2;">
+            <svg viewBox="0 0 24 24"><path d="M4 19h16M12 5v14M7 9h10"></path></svg>
+            Font Style
+          </button>
         </div>
       </div>
 
@@ -493,6 +519,22 @@
         <div class="picker-actions">
           <div class="btn-action cancel" onclick="closePicker()">Cancel</div>
           <div class="btn-action done" onclick="applyPickerColor()">Done</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALE SELEZIONE FONT -->
+    <div class="picker-modal-overlay" id="font-modal">
+      <div class="picker-container">
+        <div style="font-weight: 800; font-size: 15px; margin-bottom: 4px;">Choose Font</div>
+        <div class="font-list" id="font-list-container">
+          <div class="font-option" style="font-family: 'Dancing Script', cursive;" onclick="changeCardFont('Dancing Script, cursive', this)">Dancing Script (Corsivo Elegante)</div>
+          <div class="font-option" style="font-family: 'Caveat', cursive;" onclick="changeCardFont('Caveat, cursive', this)">Caveat (Scritto a mano)</div>
+          <div class="font-option" style="font-family: 'Quicksand', sans-serif;" onclick="changeCardFont('Quicksand, sans-serif', this)">Quicksand (Moderno / Pulito)</div>
+          <div class="font-option" style="font-family: 'Montserrat', sans-serif;" onclick="changeCardFont('Montserrat, sans-serif', this)">Montserrat (Geometrico)</div>
+        </div>
+        <div class="picker-actions" style="margin-top: 6px;">
+          <div class="btn-action cancel" onclick="closeFontModal()">Close</div>
         </div>
       </div>
     </div>
@@ -623,6 +665,26 @@
         dots[0].classList.add('active');
         dots[1].classList.remove('active');
       }
+    }
+
+    function openFontModal() {
+      document.getElementById('font-modal').style.display = 'flex';
+    }
+
+    function closeFontModal() {
+      document.getElementById('font-modal').style.display = 'none';
+    }
+
+    function changeCardFont(fontFamily, element) {
+      const card = document.getElementById('main-card');
+      card.style.fontFamily = fontFamily;
+      card.querySelectorAll('.editable').forEach(el => {
+        el.style.fontFamily = fontFamily;
+      });
+      
+      document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('active-font'));
+      element.classList.add('active-font');
+      closeFontModal();
     }
 
     function initGridColors() {
