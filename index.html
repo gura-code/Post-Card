@@ -178,7 +178,7 @@
     .card-big-photo-box {
       grid-column: 1 / 2;
       grid-row: 1 / 3;
-      display: none; /* nascosto di default */
+      display: none;
       align-self: stretch;
       height: 100%;
       align-items: center;
@@ -206,7 +206,7 @@
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: contain;
+      object-fit: cover;
     }
 
     /* IMMAGINE IN ALTO A DESTRA (TIMBRO) */
@@ -494,10 +494,10 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <!-- TESTO A SINISTRA (ORIGINALE) -->
+          <!-- TESTO A SINISTRA -->
           <div class="card-review editable placeholder-active" id="card-text-side" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
           
-          <!-- NUOVO BOX FOTO GRANDE A SINISTRA -->
+          <!-- BOX FOTO GRANDE A SINISTRA -->
           <div class="card-big-photo-box" id="card-big-photo-box" onclick="document.getElementById('big-file-input').click()">
             <div id="big-placeholder" class="big-placeholder-box">+ Add Image</div>
             <img id="card-big-photo-img" style="display:none;" alt="Big Photo">
@@ -538,7 +538,6 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             Font Style
           </button>
-          <!-- NUOVO PULSANTE AGGIUNTO -->
           <button class="menu-btn" style="grid-column: span 2;" onclick="toggleBigImageBox()">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             Add Left Image
