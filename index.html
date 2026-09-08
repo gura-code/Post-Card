@@ -208,7 +208,7 @@
       object-fit: contain;
     }
 
-    /* INFORMAZIONI IN BASSO A DESTRA (GESTIONE DINAMICA SENZA RIGHE VUOTE FISSE) */
+    /* INFORMAZIONI IN BASSO A DESTRA (ADESIONE DINAMICA AL FONDO) */
     .card-info-bottom {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
@@ -219,10 +219,20 @@
       text-align: right;
       gap: 3px;
       overflow: hidden;
+      align-self: end; /* Spinge l'intero blocco sempre in basso */
     }
 
     .editable { outline: none; -webkit-tap-highlight-color: transparent; }
-    .editable.placeholder-active { opacity: 0.5; }
+    
+    /* GESTIONE PLACEHOLDER DINAMICA: se vuoto o placeholder, non occupa altezza inutile */
+    .editable.placeholder-active { 
+      opacity: 0.4; 
+    }
+    
+    /* Se il campo data è vuoto/attivo, lo nascondiamo completamente dal layout così il titolo scende giù */
+    .card-voto.placeholder-active {
+      display: none;
+    }
 
     .card-title { 
       font-size: 11px; 
