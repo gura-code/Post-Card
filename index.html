@@ -141,7 +141,7 @@
       position: relative;
     }
 
-    /* CARD POST-CARD FORMAT (Proporzioni cartolina reale) */
+    /* CARD POST-CARD FORMAT */
     .card { 
       width: 330px; 
       height: 210px; 
@@ -159,7 +159,7 @@
       overflow: hidden;
     }
 
-    /* SPAZIO TESTO A SINISTRA */
+    /* SPAZIO TESTO A SINISTRA (Bloccato con altezza fissa ed overflow nascosto per evitare sballamenti) */
     .card-review { 
       grid-column: 1 / 2;
       grid-row: 1 / 3;
@@ -167,11 +167,13 @@
       line-height: 14px; 
       word-break: break-word; 
       color: #333333;
-      overflow-y: auto;
+      overflow: hidden;
+      resize: none;
       align-self: start;
+      height: 100%;
     }
 
-    /* IMMAGINE IN ALTO A DESTRA (Timbro/Francobollo trasparente) */
+    /* IMMAGINE IN ALTO A DESTRA */
     .card-photo-box { 
       grid-column: 2 / 3;
       grid-row: 1 / 2;
@@ -205,7 +207,7 @@
       object-fit: contain;
     }
 
-    /* INFORMAZIONI / NOME IN BASSO A DESTRA */
+    /* INFORMAZIONI IN BASSO A DESTRA */
     .card-info-bottom {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
@@ -219,8 +221,8 @@
     .editable { outline: none; -webkit-tap-highlight-color: transparent; }
     .editable.placeholder-active { opacity: 0.5; }
 
-    .card-title { font-size: 12px; line-height: 15px; font-weight: 800; word-break: break-word; color: #000000; }
-    .card-voto { font-size: 10px; line-height: 13px; font-weight: 800; color: #555555; }
+    .card-title { font-size: 12px; line-height: 15px; font-weight: 800; word-break: break-word; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-voto { font-size: 10px; line-height: 13px; font-weight: 800; color: #555555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* TEMI CARTA */
     .card.light-card { background-color: #ffffff; border: 3px solid #000000; }
@@ -402,7 +404,7 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
+          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here..." oninput="limitText(this, 180)">Write your message here...</div>
           
           <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
             <div id="placeholder" class="placeholder-box">+ Stamp</div>
@@ -410,8 +412,8 @@
           </div>
 
           <div class="card-info-bottom">
-            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info...">Name / Info...</div>
-            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details...">Date / Details...</div>
+            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info..." oninput="limitText(this, 25)">Name / Info...</div>
+            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details..." oninput="limitText(this, 30)">Date / Details...</div>
           </div>
         </div>
 
@@ -480,6 +482,21 @@
 
     let currentTarget = 'bg';
     let selectedColor = '#FFFFFF';
+
+    function limitText(el, maxLen) {
+      const ph = el.getAttribute('data-placeholder');
+      let text = el.innerText;
+      if (text !== ph && text.length > maxLen) {
+        el.innerText = text.substring(0, maxLen);
+        // Riposiziona il cursore alla fine
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
 
     document.querySelectorAll('.editable').forEach(el => {
       el.addEventListener('focus', function() {
@@ -707,15 +724,15 @@
       const card = document.getElementById('main-card');
       const editables = card.querySelectorAll('.editable');
       
+      const placeholdersBackup = [];
       editables.forEach(el => {
         if (el.classList.contains('placeholder-active')) {
-          el.dataset.wasPlaceholder = "true";
+          placeholdersBackup.push({ el: el, text: el.innerText });
           el.style.display = 'none';
           el.innerText = '';
         }
       });
 
-      // Se non è stata caricata alcuna immagine, nascondi il box del segnaposto per farlo uscire vuoto
       const photoImg = document.getElementById('card-photo-img');
       const placeholderBox = document.getElementById('placeholder');
       let wasPlaceholderHidden = false;
@@ -725,12 +742,9 @@
       }
 
       html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
-        editables.forEach(el => {
-          if (el.dataset.wasPlaceholder) {
-            el.innerText = el.getAttribute('data-placeholder');
-            el.style.display = '';
-            delete el.dataset.wasPlaceholder;
-          }
+        placeholdersBackup.forEach(item => {
+          item.el.innerText = item.text;
+          item.el.style.display = '';
         });
 
         if (wasPlaceholderHidden) {
@@ -745,4 +759,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
