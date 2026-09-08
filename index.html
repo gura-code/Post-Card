@@ -150,7 +150,6 @@
       border-radius: 16px; 
       padding: 14px; 
       display: grid; 
-      /* Più spazio a sinistra (1fr), colonna destra ottimizzata a 125px per il timbro ingrandito */
       grid-template-columns: 1fr 125px; 
       grid-template-rows: 62px 1fr;
       gap: 4px 10px;
@@ -198,6 +197,8 @@
       background-color: rgba(0,0,0,0.02); 
       font-size: 9.5px; 
       font-weight: 700; 
+      /* Eredita il colore dinamico degli altri testi della card */
+      color: inherit; 
     }
     
     .card-photo-box img { 
@@ -255,12 +256,12 @@
     }
 
     /* TEMI CARTA */
-    .card.light-card { background-color: #ffffff; border: 3px solid #000000; }
-    .card.dark-card { background-color: #000000; border: 3px solid #ffffff; }
+    .card.light-card { background-color: #ffffff; border: 3px solid #000000; color: #000000; }
+    .card.dark-card { background-color: #000000; border: 3px solid #ffffff; color: #ffffff; }
     .card.dark-card .card-title { color: #ffffff; }
     .card.dark-card .card-voto { color: #aaaaaa; }
     .card.dark-card .card-review { color: #dddddd; }
-    .card.dark-card .placeholder-box { border-color: #ffffff; color: #cccccc; background-color: #222222; }
+    .card.dark-card .placeholder-box { border-color: #ffffff; background-color: #222222; }
 
     /* PALLINE BIANCO / NERO */
     .color-picker {
@@ -612,7 +613,6 @@
         el.style.color = '';
       });
       document.getElementById('placeholder').style.borderColor = '';
-      document.getElementById('placeholder').style.color = '';
 
       if (theme === 'dark') {
         card.className = 'card dark-card';
@@ -744,7 +744,6 @@
         card.querySelectorAll('.card-title, .card-voto, .card-review').forEach(el => {
           el.style.color = selectedColor;
         });
-        document.getElementById('placeholder').style.color = selectedColor;
       }
       closePicker();
     }
