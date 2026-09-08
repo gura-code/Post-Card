@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <title>Post-Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      -webkit-text-size-adjust: 100%;
+    }
+
+    html, body { 
+      width: 100vw; 
+      height: 100dvh; 
+      overflow: hidden; 
+      background-color: #ffffff; 
+      color: #000000;
+      font-family: 'Quicksand', sans-serif; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+    }
+
+    .phone-wrapper { 
+      width: 100vw; 
+      height: 100dvh; 
+      background-color: #ffffff; 
+      position: relative; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    @media (min-width: 500px) { 
+      .phone-wrapper { 
+        width: 380px; 
+        height: 780px; 
+        max-height: 92vh; 
+        border-radius: 40px; 
+        border: 8px solid #000000; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
+      } 
+    }
+
+    /* SPLASH SCREEN */
+    #splash { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background-color: #ffffff; 
+      z-index: 100; 
+      display: flex; 
+      overflow: hidden;
+    }
+    
+    .bg-scrolling { 
+      display: flex; 
+      width: 100%; 
+      height: 100%; 
+      opacity: 0.85; 
+      pointer-events: none; 
+    }
+
+    .col { flex: 1; display: flex; flex-direction: column; }
+    
+    .up { animation: scrollUp 22s linear infinite; }
+    .down { animation: scrollDown 22s linear infinite; }
+    
+    @keyframes scrollUp { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+    @keyframes scrollDown { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+
+    .sticker { width: 75px; height: 75px; margin: 15px auto; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .sticker img { width: 100%; height: 100%; object-fit: contain; }
+
+    .content-overlay { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 10; 
+      background: rgba(255, 255, 255, 0.75); 
+    }
+
+    .logo-main { 
+      font-size: 3.5rem; 
+      line-height: 0.88; 
+      font-weight: 800; 
+      color: #000000; 
+      margin-bottom: 50px; 
+      text-align: center;
+      letter-spacing: -2px;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, 0.9), 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-start { 
+      background-color: #000000; 
+      color: #ffffff; 
+      border: none; 
+      padding: 15px 40px; 
+      border-radius: 30px; 
+      font-weight: 800; 
+      font-size: 1.2rem; 
+      cursor: pointer;
+    }
+
+    /* UI PRINCIPALE */
+    .main-ui { 
+      display: none; 
+      width: 100%; 
+      height: 100%; 
+      flex-direction: column; 
+      padding: 20px; 
+      justify-content: space-between; 
+      align-items: center; 
+      background-color: #ffffff;
+      overflow-y: auto; 
+    }
+
+    .card-canvas-area { 
+      width: 100%; 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 15px; 
+      position: relative;
+    }
+
+    /* CARD POST-CARD FORMAT (Proporzioni cartolina reale) */
+    .card { 
+      width: 330px; 
+      height: 210px; 
+      background-color: #ffffff; 
+      border: 3px solid #000000; 
+      border-radius: 16px; 
+      padding: 14px; 
+      display: grid; 
+      grid-template-columns: 1fr 110px;
+      grid-template-rows: 70px 1fr;
+      gap: 8px 12px;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* SPAZIO TESTO A SINISTRA */
+    .card-review { 
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      font-size: 11px; 
+      line-height: 14px; 
+      word-break: break-word; 
+      color: #333333;
+      overflow-y: auto;
+      align-self: start;
+    }
+
+    /* IMMAGINE IN ALTO A DESTRA (Timbro/Francobollo trasparente) */
+    .card-photo-box { 
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      width: 100%;
+      height: 100%;
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      cursor: pointer; 
+    }
+    
+    .placeholder-box { 
+      width: 65px; 
+      height: 65px; 
+      border: 2px dashed inherit; 
+      border-radius: 8px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background-color: rgba(0,0,0,0.02); 
+      font-size: 10px; 
+      font-weight: 700; 
+    }
+    
+    .card-photo-box img { 
+      max-height: 65px; 
+      max-width: 65px;
+      width: auto;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* INFORMAZIONI / NOME IN BASSO A DESTRA */
+    .card-info-bottom {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .editable { outline: none; -webkit-tap-highlight-color: transparent; }
+    .editable.placeholder-active { opacity: 0.5; }
+
+    .card-title { font-size: 12px; line-height: 15px; font-weight: 800; word-break: break-word; color: #000000; }
+    .card-voto { font-size: 10px; line-height: 13px; font-weight: 800; color: #555555; }
+
+    /* TEMI CARTA */
+    .card.light-card { background-color: #ffffff; border: 3px solid #000000; }
+    .card.dark-card { background-color: #000000; border: 3px solid #ffffff; }
+    .card.dark-card .card-title { color: #ffffff; }
+    .card.dark-card .card-voto { color: #aaaaaa; }
+    .card.dark-card .card-review { color: #dddddd; }
+    .card.dark-card .placeholder-box { border-color: #ffffff; color: #cccccc; background-color: #222222; }
+
+    /* PALLINE BIANCO / NERO */
+    .color-picker {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #000000;
+      transition: transform 0.15s ease;
+    }
+    .color-dot:active { transform: scale(0.9); }
+    .dot-white { background-color: #ffffff; }
+    .dot-black { background-color: #000000; }
+    .color-dot.active { box-shadow: 0 0 0 3px #000000; }
+
+    /* MENU SUB-OPTIONS GRIGLIA */
+    .color-sub-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #111111;
+      padding: 10px;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 330px;
+    }
+
+    .menu-btn {
+      background: #222222;
+      color: #ffffff;
+      border: 1px solid #333333;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .menu-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    
+    .btn-download { 
+      width: 100%; 
+      background-color: #000000; 
+      color: #ffffff; 
+      padding: 14px; 
+      border-radius: 12px; 
+      font-weight: 800; 
+      text-align: center; 
+      margin-top: 10px;
+      margin-bottom: 10px; 
+      cursor: pointer; 
+    }
+
+    /* MODALE SELETTORE COLORE */
+    .picker-modal-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 20px;
+    }
+
+    .picker-container {
+      width: 340px;
+      background: #1c1c1e;
+      border-radius: 28px;
+      padding: 16px;
+      color: #ffffff;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .grid-view {
+      display: grid;
+      grid-template-columns: repeat(13, 1fr);
+      gap: 2px;
+      width: 100%;
+      height: 220px;
+    }
+
+    .grid-cell { border-radius: 2px; cursor: pointer; }
+
+    .picker-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #2c2c2e;
+      padding: 8px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+    }
+
+    .color-preview-box { width: 40px; height: 26px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); }
+    .info-inputs { display: flex; flex: 1; justify-content: space-between; gap: 6px; }
+    .input-group { display: flex; flex-direction: column; color: #aaaaaa; font-weight: 700; font-size: 10px; }
+    .input-group input {
+      background: #1c1c1e; border: 1px solid #3a3a3c; border-radius: 6px;
+      color: #ffffff; font-family: 'Quicksand', sans-serif; font-weight: 800;
+      font-size: 11px; padding: 3px 4px; text-align: center; margin-top: 2px;
+    }
+    .input-group input:focus { border-color: #0a84ff; outline: none; }
+    .hex-input { width: 68px; }
+    .rgb-input { width: 36px; }
+
+    .picker-actions {
+      display: flex; justify-content: space-between; border-top: 1px solid #2c2c2e;
+      padding-top: 10px; font-weight: 800; font-size: 14px;
+    }
+    .btn-action { cursor: pointer; padding: 4px 10px; }
+    .btn-action.cancel { color: #8e8e93; }
+    .btn-action.done { color: #ffffff; }
+
+    /* DARK/LIGHT MODE */
+    @media (prefers-color-scheme: dark) {
+      html, body, .phone-wrapper, #splash, .main-ui { background-color: #000000 !important; color: #ffffff !important; }
+      .content-overlay { background: rgba(0, 0, 0, 0.75) !important; }
+      .logo-main { color: #ffffff !important; }
+      .btn-start, .btn-download { background-color: #ffffff !important; color: #000000 !important; }
+      .sticker img { filter: invert(1); }
+      .color-dot { border-color: #ffffff; }
+      .color-dot.active { box-shadow: 0 0 0 3px #ffffff; }
+    }
+  </style>
+</head>
+<body class="light-mode-env">
+
+  <div class="phone-wrapper">
+    <!-- SPLASH SCREEN -->
+    <div id="splash">
+      <div class="bg-scrolling">
+        <div class="col up" id="col1"></div>
+        <div class="col down" id="col2"></div>
+        <div class="col up" id="col3"></div>
+      </div>
+      <div class="content-overlay">
+        <div class="logo-main">
+          <div>Post</div>
+          <div>Card</div>
+        </div>
+        <button class="btn-start" onclick="startApp()">Start Creating</button>
+      </div>
+    </div>
+
+    <!-- UI PRINCIPALE -->
+    <div class="main-ui" id="main-ui">
+      <div style="font-weight:800; margin-top:10px; font-size: 1.2rem;">Create Post-Card</div>
+      
+      <div class="card-canvas-area">
+        <div class="card light-card" id="main-card">
+          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
+          
+          <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
+            <div id="placeholder" class="placeholder-box">+ Stamp</div>
+            <img id="card-photo-img" style="display:none;" alt="Stamp">
+          </div>
+
+          <div class="card-info-bottom">
+            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Name / Info...">Name / Info...</div>
+            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / Details...">Date / Details...</div>
+          </div>
+        </div>
+
+        <!-- PALLINE BIANCO / NERO -->
+        <div class="color-picker">
+          <div class="color-dot dot-white active" onclick="setCardTheme('light')"></div>
+          <div class="color-dot dot-black" onclick="setCardTheme('dark')"></div>
+        </div>
+
+        <!-- MENU SUB-OPTIONS -->
+        <div class="color-sub-menu" id="color-sub-menu">
+          <button class="menu-btn" onclick="openCustomPicker('bg')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"></rect></svg>
+            Card Color
+          </button>
+          <button class="menu-btn" onclick="openCustomPicker('line')">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"></line></svg>
+            Borders
+          </button>
+          <button class="menu-btn" onclick="openCustomPicker('text')">
+            <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"></path></svg>
+            Text Color
+          </button>
+        </div>
+      </div>
+
+      <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="loadPhoto(event)">
+      <div class="btn-download" onclick="downloadCard()">Download Card</div>
+    </div>
+
+    <!-- MODALE SELETTORE COLORE -->
+    <div class="picker-modal-overlay" id="picker-modal">
+      <div class="picker-container">
+        <div class="grid-view" id="picker-grid"></div>
+
+        <div class="picker-info">
+          <div class="color-preview-box" id="preview-box"></div>
+          <div class="info-inputs">
+            <div class="input-group">Hex <input type="text" id="hex-input" class="hex-input" oninput="handleHexInput(this.value)"></div>
+            <div class="input-group">R <input type="number" id="r-input" class="rgb-input" min="0" max="255" oninput="handleRgbInput()"></div>
+            <div class="input-group">G <input type="number" id="g-input" class="rgb-input" min="0" max="255" oninput="handleRgbInput()"></div>
+            <div class="input-group">B <input type="number" id="b-input" class="rgb-input" min="0" max="255" oninput="handleRgbInput()"></div>
+          </div>
+        </div>
+
+        <div class="picker-actions">
+          <div class="btn-action cancel" onclick="closePicker()">Cancel</div>
+          <div class="btn-action done" onclick="applyPickerColor()">Done</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const images = [
+      "1000072971-removebg-preview.png", "1000072972-removebg-preview.png",
+      "1000072974-removebg-preview.png", "1000072977-removebg-preview.png",
+      "1000072978-removebg-preview.png", "1000072979-removebg-preview.png",
+      "1000072980-removebg-preview.png", "1000072981-removebg-preview.png",
+      "1000072982-removebg-preview.png", "1000072983-removebg-preview.png",
+      "1000072985-removebg-preview.png", "1000072986-removebg-preview.png",
+      "1000072987-removebg-preview.png", "1000072988-removebg-preview.png",
+      "1000072989-removebg-preview.png", "1000072990-removebg-preview.png"
+    ];
+
+    let currentTarget = 'bg';
+    let selectedColor = '#FFFFFF';
+
+    document.querySelectorAll('.editable').forEach(el => {
+      el.addEventListener('focus', function() {
+        const ph = this.getAttribute('data-placeholder');
+        if (this.innerText.trim() === ph) {
+          setTimeout(() => {
+            const range = document.createRange();
+            range.selectNodeContents(this);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }, 0);
+        }
+      });
+
+      el.addEventListener('input', function() {
+        const ph = this.getAttribute('data-placeholder');
+        const text = this.innerText.trim();
+        if (text !== '' && text !== ph) {
+          this.classList.remove('placeholder-active');
+        } else {
+          this.classList.add('placeholder-active');
+        }
+      });
+
+      el.addEventListener('blur', function() {
+        const ph = this.getAttribute('data-placeholder');
+        const text = this.innerText.trim();
+        if (text === '' || text === ph) {
+          this.innerText = ph;
+          this.classList.add('placeholder-active');
+        } else {
+          this.classList.remove('placeholder-active');
+        }
+      });
+    });
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderColumn(colId) {
+      const colEl = document.getElementById(colId);
+      if(!colEl) return;
+      const shuffled = shuffleArray(images);
+      let htmlContent = '';
+      shuffled.forEach(imgName => { htmlContent += `<div class="sticker"><img src="${imgName}" alt="sticker"></div>`; });
+      shuffled.forEach(imgName => { htmlContent += `<div class="sticker"><img src="${imgName}" alt="sticker"></div>`; });
+      colEl.innerHTML = htmlContent;
+    }
+
+    renderColumn('col1'); renderColumn('col2'); renderColumn('col3');
+
+    function startApp() { 
+      document.getElementById('splash').style.display = 'none'; 
+      document.getElementById('main-ui').style.display = 'flex'; 
+    }
+    
+    function loadPhoto(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = document.getElementById('card-photo-img');
+        img.src = event.target.result;
+        img.style.display = 'block';
+        document.getElementById('placeholder').style.display = 'none';
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function setCardTheme(theme) {
+      const card = document.getElementById('main-card');
+      const dots = document.querySelectorAll('.color-dot');
+      
+      card.style.backgroundColor = '';
+      card.style.borderColor = '';
+      document.querySelectorAll('.card-title, .card-voto, .card-review').forEach(el => {
+        el.style.color = '';
+      });
+      document.getElementById('placeholder').style.borderColor = '';
+      document.getElementById('placeholder').style.color = '';
+
+      if (theme === 'dark') {
+        card.className = 'card dark-card';
+        dots[0].classList.remove('active');
+        dots[1].classList.add('active');
+      } else {
+        card.className = 'card light-card';
+        dots[0].classList.add('active');
+        dots[1].classList.remove('active');
+      }
+    }
+
+    function initGridColors() {
+      const grid = document.getElementById('picker-grid');
+      grid.innerHTML = '';
+      
+      const exactPalette13x13 = [
+        ["#FFFFFF", "#FFE3E2", "#FFECDE", "#FFF5DA", "#FFFDDC", "#F0FFE8", "#E4FCEE", "#E2FFFB", "#DBECFE", "#DBE2FF", "#EFDBFF", "#FFE2FE", "#FFE3EF"],
+        ["#E6E6E6", "#FFC9C9", "#FFDEC3", "#FFEEC0", "#FEFCBF", "#E6FFD8", "#CDF9DE", "#CCFFF8", "#BFDDFF", "#BFCCFF", "#E6C9FF", "#FFD0FE", "#FECDE0"],
+        ["#CCCCCC", "#FEA3A2", "#FFCBA3", "#FFE699", "#FEFA99", "#D7FFC1", "#B1FACD", "#ADFFF3", "#98CAFF", "#99B0FE", "#D4A6FF", "#FFB3FD", "#FEADCD"],
+        ["#B3B3B3", "#FE817D", "#FFB882", "#FEDB73", "#FFF873", "#CAFFAC", "#94F8BC", "#8FFFEF", "#73B7FE", "#7391FF", "#C684FF", "#FF96FB", "#FF8EBA"],
+        ["#999999", "#FF5959", "#FFA45E", "#FED557", "#FEF64D", "#BEFF99", "#7DF5AD", "#78FFEE", "#4EA3FE", "#4E73FF", "#B56BFF", "#FF78F9", "#FF70A6"],
+        ["#808080", "#FE3636", "#FF913C", "#FFCB31", "#FBF519", "#9FFF67", "#4FF591", "#33FFE4", "#3396FE", "#335FFE", "#A74EFE", "#FF67FA", "#FF5D99"],
+        ["#666666", "#FE1212", "#FF7D1B", "#F7BA00", "#F7EB00", "#9DF762", "#47ED87", "#31F7DC", "#0F87FF", "#1547FE", "#9933FF", "#FE40F8", "#FF458C"],
+        ["#4D4D4D", "#E81011", "#EA7317", "#ECB000", "#EBDF00", "#90EB5F", "#38DE7A", "#2FEBD2", "#0071EB", "#0738EC", "#8B17FE", "#EB3BE4", "#EC3B7F"],
+        ["#404040", "#D31111", "#D96B16", "#D9A400", "#D9CE00", "#86D957", "#34CF73", "#2BD9C2", "#0069D9", "#002ED9", "#7500EC", "#DA36D3", "#DA2B6E"],
+        ["#333333", "#B70D0D", "#B85A12", "#B88A00", "#B8AE00", "#72B848", "#2CAF5F", "#23B8A4", "#0058B9", "#0028B8", "#6600CD", "#B72EB2", "#B8255C"],
+        ["#252525", "#990B0A", "#994200", "#987300", "#999100", "#5E993D", "#249150", "#1E9582", "#014A99", "#01219A", "#5200A3", "#A629A1", "#9E2050"],
+        ["#1A1A1A", "#6E0708", "#6E3001", "#6E4801", "#6D6800", "#426A2B", "#1A693A", "#136358", "#01356E", "#00186E", "#410080", "#6E1B6B", "#7D193F"],
+        ["#000000", "#400404", "#512301", "#513600", "#514E00", "#2D4A1C", "#124828", "#0E4A42", "#002752", "#011053", "#2F0060", "#4B1249", "#5E1230"]
+      ];
+
+      exactPalette13x13.forEach(row => {
+        row.forEach(hexColor => {
+          let cell = document.createElement('div');
+          cell.className = 'grid-cell';
+          cell.style.backgroundColor = hexColor;
+          cell.onclick = () => selectColor(hexColor);
+          grid.appendChild(cell);
+        });
+      });
+    }
+
+    function openCustomPicker(target) {
+      currentTarget = target;
+      initGridColors();
+      document.getElementById('picker-modal').style.display = 'flex';
+      
+      const card = document.getElementById('main-card');
+      let currentHex = '#FFFFFF';
+      
+      if (target === 'bg') {
+        let bg = window.getComputedStyle(card).backgroundColor;
+        currentHex = rgbToHex(bg);
+      } else if (target === 'line') {
+        let borderCol = window.getComputedStyle(card).borderColor;
+        currentHex = rgbToHex(borderCol);
+      } else if (target === 'text') {
+        let textCol = window.getComputedStyle(card.querySelector('.card-title')).color;
+        currentHex = rgbToHex(textCol);
+      }
+      
+      selectColor(currentHex);
+    }
+
+    function rgbToHex(rgb) {
+      if (rgb.startsWith('#')) return rgb;
+      const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+      if (!match) return '#FFFFFF';
+      return '#' + match.slice(1, 4).map(x => parseInt(x).toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    function closePicker() {
+      document.getElementById('picker-modal').style.display = 'none';
+    }
+
+    function selectColor(hex) {
+      selectedColor = hex;
+      document.getElementById('preview-box').style.backgroundColor = hex;
+      document.getElementById('hex-input').value = hex.toUpperCase();
+
+      let r = parseInt(hex.slice(1,3), 16) || 0;
+      let g = parseInt(hex.slice(3,5), 16) || 0;
+      let b = parseInt(hex.slice(5,7), 16) || 0;
+
+      document.getElementById('r-input').value = r;
+      document.getElementById('g-input').value = g;
+      document.getElementById('b-input').value = b;
+    }
+
+    function handleHexInput(val) {
+      if (!val.startsWith('#')) val = '#' + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        selectedColor = val;
+        document.getElementById('preview-box').style.backgroundColor = val;
+        let r = parseInt(val.slice(1,3), 16);
+        let g = parseInt(val.slice(3,5), 16);
+        let b = parseInt(val.slice(5,7), 16);
+        document.getElementById('r-input').value = r;
+        document.getElementById('g-input').value = g;
+        document.getElementById('b-input').value = b;
+      }
+    }
+
+    function handleRgbInput() {
+      let r = parseInt(document.getElementById('r-input').value) || 0;
+      let g = parseInt(document.getElementById('g-input').value) || 0;
+      let b = parseInt(document.getElementById('b-input').value) || 0;
+
+      r = Math.min(255, Math.max(0, r));
+      g = Math.min(255, Math.max(0, g));
+      b = Math.min(255, Math.max(0, b));
+
+      let hex = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      selectedColor = hex;
+      document.getElementById('preview-box').style.backgroundColor = hex;
+      document.getElementById('hex-input').value = hex.toUpperCase();
+    }
+
+    function applyPickerColor() {
+      const card = document.getElementById('main-card');
+      if (currentTarget === 'bg') {
+        card.classList.remove('light-card', 'dark-card');
+        card.style.backgroundColor = selectedColor;
+      } else if (currentTarget === 'line') {
+        card.style.setProperty('border-color', selectedColor, 'important');
+        document.getElementById('placeholder').style.borderColor = selectedColor;
+      } else if (currentTarget === 'text') {
+        card.querySelectorAll('.card-title, .card-voto, .card-review').forEach(el => {
+          el.style.color = selectedColor;
+        });
+        document.getElementById('placeholder').style.color = selectedColor;
+      }
+      closePicker();
+    }
+
+    function downloadCard() {
+      const card = document.getElementById('main-card');
+      const editables = card.querySelectorAll('.editable');
+      
+      editables.forEach(el => {
+        if (el.classList.contains('placeholder-active')) {
+          el.dataset.wasPlaceholder = "true";
+          el.style.display = 'none';
+          el.innerText = '';
+        }
+      });
+
+      // Se non è stata caricata alcuna immagine, nascondi il box del segnaposto per farlo uscire vuoto
+      const photoImg = document.getElementById('card-photo-img');
+      const placeholderBox = document.getElementById('placeholder');
+      let wasPlaceholderHidden = false;
+      if (photoImg.style.display === 'none') {
+        placeholderBox.style.display = 'none';
+        wasPlaceholderHidden = true;
+      }
+
+      html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
+        editables.forEach(el => {
+          if (el.dataset.wasPlaceholder) {
+            el.innerText = el.getAttribute('data-placeholder');
+            el.style.display = '';
+            delete el.dataset.wasPlaceholder;
+          }
+        });
+
+        if (wasPlaceholderHidden) {
+          placeholderBox.style.display = 'flex';
+        }
+
+        const link = document.createElement('a');
+        link.download = 'post-card.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+  </script>
+</body>
+  </html>
