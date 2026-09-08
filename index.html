@@ -174,6 +174,41 @@
       padding-right: 6px;
     }
 
+    /* NUOVO BOX FOTO GRANDE A SINISTRA */
+    .card-big-photo-box {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+      display: none; /* nascosto di default */
+      align-self: stretch;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .big-placeholder-box {
+      width: 100%;
+      height: 100%;
+      border: 2px dashed inherit;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0,0,0,0.02);
+      font-size: 11px;
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .card-big-photo-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+
     /* IMMAGINE IN ALTO A DESTRA (TIMBRO) */
     .card-photo-box { 
       grid-column: 2 / 3;
@@ -261,6 +296,7 @@
     .card.dark-card .card-voto { color: #aaaaaa; }
     .card.dark-card .card-review { color: #dddddd; }
     .card.dark-card .placeholder-box { border-color: #ffffff; background-color: #222222; }
+    .card.dark-card .big-placeholder-box { border-color: #ffffff; background-color: #222222; }
 
     /* PALLINE BIANCO / NERO */
     .color-picker {
@@ -458,7 +494,14 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
+          <!-- TESTO A SINISTRA (ORIGINALE) -->
+          <div class="card-review editable placeholder-active" id="card-text-side" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
+          
+          <!-- NUOVO BOX FOTO GRANDE A SINISTRA -->
+          <div class="card-big-photo-box" id="card-big-photo-box" onclick="document.getElementById('big-file-input').click()">
+            <div id="big-placeholder" class="big-placeholder-box">+ Add Image</div>
+            <img id="card-big-photo-img" style="display:none;" alt="Big Photo">
+          </div>
           
           <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
             <div id="placeholder" class="placeholder-box">+ Stamp</div>
@@ -495,10 +538,16 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             Font Style
           </button>
+          <!-- NUOVO PULSANTE AGGIUNTO -->
+          <button class="menu-btn" style="grid-column: span 2;" onclick="toggleBigImageBox()">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            Add Left Image
+          </button>
         </div>
       </div>
 
       <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="loadPhoto(event)">
+      <input type="file" id="big-file-input" style="display:none;" accept="image/*" onchange="loadBigPhoto(event)">
       <div class="btn-download" onclick="downloadCard()">Download Card</div>
     </div>
 
@@ -556,6 +605,7 @@
 
     let currentTarget = 'bg';
     let selectedColor = '#FFFFFF';
+    let isBigImageMode = false;
 
     document.querySelectorAll('.editable').forEach(el => {
       el.addEventListener('focus', function() {
@@ -632,6 +682,33 @@
       reader.readAsDataURL(file);
     }
 
+    function loadBigPhoto(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = document.getElementById('card-big-photo-img');
+        img.src = event.target.result;
+        img.style.display = 'block';
+        document.getElementById('big-placeholder').style.display = 'none';
+      }
+      reader.readAsDataURL(file);
+    }
+
+    function toggleBigImageBox() {
+      isBigImageMode = !isBigImageMode;
+      const textSide = document.getElementById('card-text-side');
+      const bigBox = document.getElementById('card-big-photo-box');
+
+      if (isBigImageMode) {
+        textSide.style.display = 'none';
+        bigBox.style.display = 'flex';
+      } else {
+        textSide.style.display = 'block';
+        bigBox.style.display = 'none';
+      }
+    }
+
     function setCardTheme(theme) {
       const card = document.getElementById('main-card');
       const dots = document.querySelectorAll('.color-dot');
@@ -642,6 +719,7 @@
         el.style.color = '';
       });
       document.getElementById('placeholder').style.borderColor = '';
+      document.getElementById('big-placeholder').style.borderColor = '';
 
       if (theme === 'dark') {
         card.className = 'card dark-card';
@@ -789,6 +867,7 @@
       } else if (currentTarget === 'line') {
         card.style.setProperty('border-color', selectedColor, 'important');
         document.getElementById('placeholder').style.borderColor = selectedColor;
+        document.getElementById('big-placeholder').style.borderColor = selectedColor;
       } else if (currentTarget === 'text') {
         card.querySelectorAll('.card-title, .card-voto, .card-review').forEach(el => {
           el.style.color = selectedColor;
@@ -812,11 +891,18 @@
         placeholderBox.style.visibility = 'hidden';
       }
 
+      const bigPhotoImg = document.getElementById('card-big-photo-img');
+      const bigPlaceholderBox = document.getElementById('big-placeholder');
+      if (isBigImageMode && bigPhotoImg.style.display === 'none') {
+        bigPlaceholderBox.style.visibility = 'hidden';
+      }
+
       html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then(canvas => {
         card.querySelectorAll('.editable').forEach(el => {
           el.style.visibility = 'visible';
         });
         placeholderBox.style.visibility = 'visible';
+        bigPlaceholderBox.style.visibility = 'visible';
 
         const link = document.createElement('a');
         link.download = 'post-card.png';
