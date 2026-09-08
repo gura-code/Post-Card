@@ -318,6 +318,7 @@
       stroke: #ffffff;
       stroke-width: 2.5;
       stroke-linecap: round;
+      stroke-linejoin: round;
     }
     
     .btn-download { 
@@ -457,7 +458,7 @@
       
       <div class="card-canvas-area">
         <div class="card light-card" id="main-card">
-          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here..." oninput="limitText(this, 400)">Write your message here...</div>
+          <div class="card-review editable placeholder-active" contenteditable="true" data-placeholder="Write your message here...">Write your message here...</div>
           
           <div class="card-photo-box" onclick="document.getElementById('file-input').click()">
             <div id="placeholder" class="placeholder-box">+ Stamp</div>
@@ -465,8 +466,8 @@
           </div>
 
           <div class="card-info-bottom">
-            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Add notes, details or signature..." oninput="limitText(this, 200)">Add notes, details or signature...</div>
-            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / From..." oninput="limitText(this, 100)">Date / From...</div>
+            <div class="card-title editable placeholder-active" contenteditable="true" data-placeholder="Add notes, details or signature...">Add notes, details or signature...</div>
+            <div class="card-voto editable placeholder-active" contenteditable="true" data-placeholder="Date / From...">Date / From...</div>
           </div>
         </div>
 
@@ -490,8 +491,8 @@
             <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"></path></svg>
             Text Color
           </button>
-          <button class="menu-btn" onclick="openFontModal()" style="grid-column: span 2;">
-            <svg viewBox="0 0 24 24"><path d="M4 19h16M12 5v14M7 9h10"></path></svg>
+          <button class="menu-btn" onclick="openFontModal()">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             Font Style
           </button>
         </div>
@@ -555,20 +556,6 @@
 
     let currentTarget = 'bg';
     let selectedColor = '#FFFFFF';
-
-    function limitText(el, maxLen) {
-      const ph = el.getAttribute('data-placeholder');
-      let text = el.innerText;
-      if (text !== ph && text.length > maxLen) {
-        el.innerText = text.substring(0, maxLen);
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
-    }
 
     document.querySelectorAll('.editable').forEach(el => {
       el.addEventListener('focus', function() {
